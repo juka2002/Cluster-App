@@ -5,6 +5,10 @@ __pycache__/
 
 # C extensions
 *.so
+<<<<<<< HEAD
+=======
+.idea
+>>>>>>> 3621488... Version 1 Incial
 
 # Distribution / packaging
 .Python
@@ -126,4 +130,8 @@ venv.bak/
 dmypy.json
 
 # Pyre type checker
+<<<<<<< HEAD
 .pyre/
+=======
+.pyre/
+>>>>>>> 3621488... Version 1 Incial
