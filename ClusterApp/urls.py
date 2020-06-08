@@ -18,6 +18,6 @@ from django.urls import path, include
 from MiApp import views
 
 urlpatterns = [
-    path('', include('MiApp.urls')),
     path('admin/', admin.site.urls),
+    path('', views.simple_upload),
 ]

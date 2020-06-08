@@ -9,8 +9,20 @@
     <title>Cluster App</title>
 </head>
 <body>
+{% if messages %}
+{%for message in messages%}
+<div class="alert alert-{{ message.tags }}" role="alert">
+    <p{% if message.tags %} class=""{% endif %}>{{ message }}</p>
 
-<h2>Testeo 2</h2>
+</div>
+{%endfor%}
+{% endif %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
 
+    <input type="file" name="myfile">
+    <button type="submit">Upload</button>
+    <h2>Por favor cargue aquí su archivo excel</h2>
+</form>
 </body>
 </html>
