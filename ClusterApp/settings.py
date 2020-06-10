@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'MiApp',
     'import_export',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
