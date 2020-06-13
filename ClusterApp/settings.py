@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'MiApp',
     'import_export',
     'django_extensions',
+    'rest_framework',
+    'api',
 ]
 
 MIDDLEWARE = [

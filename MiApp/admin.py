@@ -5,4 +5,4 @@ from .models import Data
 # Register your models here.
 @admin.register(Data)
 class DataAdmin(ImportExportModelAdmin):
-	list_display = ('Identificador', 'OC', 'FechaApertura', 'Cantidad', 'PrecioLista', 'PrecioFacturado')
+	list_display 	= ('Identificador', 'OC', 'FechaApertura', 'Cantidad', 'PrecioLista', 'PrecioFacturado')

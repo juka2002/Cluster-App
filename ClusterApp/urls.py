@@ -20,4 +20,5 @@ from MiApp import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.simple_upload),
+    path('', include('api.urls'))
 ]
