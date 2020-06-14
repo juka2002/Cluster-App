@@ -2,12 +2,13 @@ from django.db import models
 
 # Create your models here.
 class Data(models.Model):
-	Identificador = models.CharField(max_length=500)
+	id = models.AutoField(primary_key=True)
+	Identificador = models.CharField(max_length=500, null=True, blank=True)
 	OC = models.CharField(max_length=500, null=True, blank=True)
-	FechaApertura = models.DateTimeField()
-	Cantidad = models.IntegerField()
-	PrecioLista = models.DecimalField(max_digits=20, decimal_places=2)
-	PrecioFacturado = models.DecimalField(max_digits=20, decimal_places=2)
+	FechaApertura = models.DateTimeField(null=True, blank=True)
+	Cantidad = models.IntegerField(null=True, blank=True)
+	PrecioLista = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+	PrecioFacturado = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
 
 	class Meta:
 		verbose_name_plural = 'Data'

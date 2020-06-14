@@ -3,9 +3,6 @@ from .models import Data
 from .resources import DataResource
 from django.contrib import messages
 from tablib import Dataset
-from django.http import HttpResponse, JsonResponse
-from rest_framework.parsers import JSONParser
-from api.serializers import DataSerializer
 import pandas as pd
 
 # Create your views here.
@@ -35,19 +32,3 @@ def simple_upload(request):
 			value.save()
 	return	render(request,'base.html')
 
-#esta es la vista de la carga en la api
-def data_list(request):
-	if request.method == 'GET':
-		data = Data.objects.all()
-		serializer = DataSerializer(data, many=True)
-		return JsonResponse(serializer.data, safe=False)
-
-	elif request.method == 'POST':
-		data = JSONParser.parse(request)
-		serializer = DataSerializer(data=data)
-
-		if serializer.is_valid():
-			serializer.save()
-			return JsonResponse(serializer.data, status=201)
-
-		return JsonResponse(serializer.errors, status=400)
