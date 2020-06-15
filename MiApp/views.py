@@ -1,10 +1,9 @@
 from django.shortcuts import render
-from .models import Data
+from .models import Data, DataAnalysis
 from .resources import DataResource
 from django.contrib import messages
 from tablib import Dataset
-import pandas as pd
-
+# from notebooks import
 # Create your views here.
 
 #esta es la vista de carga de la data en excel
@@ -31,4 +30,11 @@ def simple_upload(request):
 				)
 			value.save()
 	return	render(request,'base.html')
+
+# def data_analysis(request):
+#
+# 	DataFinal = df_plot16
+#
+# 	return DataFinal
+
 

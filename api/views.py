@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from rest_framework.parsers import JSONParser
 from api.serializers import DataSerializer
-from MiApp.models import Data
+from MiApp.models import Data, DataAnalysis
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -20,6 +20,12 @@ from rest_framework import viewsets
 class DataViewSet(viewsets.ModelViewSet):
 	serializer_class = DataSerializer
 	queryset = Data.objects.all()
+	authentication_classes = [SessionAuthentication, BasicAuthentication]
+	permission_classes = [IsAuthenticated]
+
+class DataAnalysisSet(viewsets.ModelViewSet):
+	serializer_class = DataSerializer
+	queryset = DataAnalysis.objects.all()
 	authentication_classes = [SessionAuthentication, BasicAuthentication]
 	permission_classes = [IsAuthenticated]
 
