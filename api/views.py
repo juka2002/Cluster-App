@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from rest_framework.parsers import JSONParser
-from api.serializers import DataSerializer
+from api.serializers import DataSerializer, DataAnalysisSerializer
 from MiApp.models import Data, DataAnalysis
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -24,10 +24,15 @@ class DataViewSet(viewsets.ModelViewSet):
 	permission_classes = [IsAuthenticated]
 
 class DataAnalysisSet(viewsets.ModelViewSet):
-	serializer_class = DataSerializer
+	serializer_class = DataAnalysisSerializer
 	queryset = DataAnalysis.objects.all()
 	authentication_classes = [SessionAuthentication, BasicAuthentication]
 	permission_classes = [IsAuthenticated]
+
+
+# @api_view(['POST'])
+# def clusterFunction(request):
+
 
 
 #Aquí hago la api creada en forma Genérica
