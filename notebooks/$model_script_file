@@ -1,0 +1,17 @@
+from django_pandas.io import read_frame
+import pandas as pd
+from sklearn.cluster import KMeans
+import warnings
+from MiApp.models import Data
+
+warnings.filterwarnings("ignore")
+
+def read_data():
+    Base = Data.objects.all()
+    df = read_frame(Base)
+    df["PrecioLista"] = df["PrecioLista"].astype(float)
+    df["PrecioFacturado"] = df["PrecioFacturado"].astype(float)
+    
+    return df
+
+read_data()
