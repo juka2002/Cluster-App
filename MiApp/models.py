@@ -29,3 +29,6 @@ class DataAnalysis(models.Model):
 	Activo = models.IntegerField(null=True, blank=True)
 	Alerta = models.IntegerField(null=True, blank=True)
 	Desertor = models.IntegerField(null=True, blank=True)
+
+	class Meta:
+		verbose_name_plural = 'DataAnalysis'

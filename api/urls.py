@@ -1,5 +1,6 @@
 from django.urls import path, include
-from .views import DataViewSet, DataAnalysisSet
+from . import views
+from .views import DataViewSet, DataAnalysisSet, read_data
 # data_list, data_detail, DataAPIView, DataDetails, GenericAPIView
 from rest_framework.routers import DefaultRouter
 
@@ -22,4 +23,5 @@ urlpatterns = [
 	# path('api/<int:id>/', DataViewSet.as_view()),
 	#api con DataView mas sencillo
 	path('', include(router.urls)),
+	path('cluster/', views.read_data),
 ]

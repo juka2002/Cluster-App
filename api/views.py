@@ -12,28 +12,30 @@ from rest_framework import mixins
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
+import numpy as np
 
 # Create your views here.
-
-
 #Hago la api con el data ViewSet
 class DataViewSet(viewsets.ModelViewSet):
 	serializer_class = DataSerializer
 	queryset = Data.objects.all()
-	authentication_classes = [SessionAuthentication, BasicAuthentication]
-	permission_classes = [IsAuthenticated]
+	# authentication_classes = [SessionAuthentication, BasicAuthentication]
+	# permission_classes = [IsAuthenticated]
 
 class DataAnalysisSet(viewsets.ModelViewSet):
 	serializer_class = DataAnalysisSerializer
 	queryset = DataAnalysis.objects.all()
-	authentication_classes = [SessionAuthentication, BasicAuthentication]
-	permission_classes = [IsAuthenticated]
+	# authentication_classes = [SessionAuthentication, BasicAuthentication]
+	# permission_classes = [IsAuthenticated]
+
+@api_view(['POST'])
+def read_data(request):
+	try:
 
 
-# @api_view(['POST'])
-# def clusterFunction(request):
-
-
+		return Response("ok")
+	except ValueError as e:
+		return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
 
 #Aquí hago la api creada en forma Genérica
 # class GenericAPIView(

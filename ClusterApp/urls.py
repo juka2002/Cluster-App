@@ -15,10 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from MiApp import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.simple_upload),
-    path('', include('api.urls'))
+    path('', include('MiApp.urls')),
+    path('', include('api.urls')),
 ]

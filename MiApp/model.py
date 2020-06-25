@@ -361,3 +361,5 @@ if __name__ == '__main__':
     df_plot15 = semi_final_order(df_base9)
     df_plot16 = final_order(df_plot15)
     df_base10 = final_table(df_base9)
+
+    print(df_plot16)
