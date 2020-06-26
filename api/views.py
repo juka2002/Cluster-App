@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from rest_framework.parsers import JSONParser
-from api.serializers import DataSerializer, DataAnalysisSerializer
+from api.serializers import DataSerializer #DataAnalysisSerializer
 from MiApp.models import Data, DataAnalysis
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -12,7 +12,9 @@ from rest_framework import mixins
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
+from django_pandas.io import read_frame
 import numpy as np
+import pandas as pd
 
 # Create your views here.
 #Hago la api con el data ViewSet
@@ -22,20 +24,26 @@ class DataViewSet(viewsets.ModelViewSet):
 	# authentication_classes = [SessionAuthentication, BasicAuthentication]
 	# permission_classes = [IsAuthenticated]
 
-class DataAnalysisSet(viewsets.ModelViewSet):
-	serializer_class = DataAnalysisSerializer
-	queryset = DataAnalysis.objects.all()
-	# authentication_classes = [SessionAuthentication, BasicAuthentication]
-	# permission_classes = [IsAuthenticated]
-
 @api_view(['POST'])
-def read_data(request):
+def cluster_data(request):
 	try:
+		base = request.data
+		df = pd.DataFrame(base)
+		df["PrecioLista"] = df["PrecioLista"].astype(float)
+		df["PrecioFacturado"] = df["PrecioFacturado"].astype(float)
+		print(df)
 
+		df = df.to_json()
 
-		return Response("ok")
+		return JsonResponse( df, safe=False )
 	except ValueError as e:
 		return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
+
+# class DataAnalysisSet(viewsets.ModelViewSet):
+# 	serializer_class = DataAnalysisSerializer
+# 	queryset = DataAnalysis.objects.all()
+	# authentication_classes = [SessionAuthentication, BasicAuthentication]
+	# permission_classes = [IsAuthenticated]
 
 #Aquí hago la api creada en forma Genérica
 # class GenericAPIView(
