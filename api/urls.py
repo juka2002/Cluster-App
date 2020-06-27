@@ -23,5 +23,5 @@ urlpatterns = [
 	# path('api/<int:id>/', DataViewSet.as_view()),
 	#api con DataView mas sencillo
 	path('', include(router.urls)),
-	path('cluster/', views.cluster_data),
+	path('cluster/', views.cluster_function),
 ]
