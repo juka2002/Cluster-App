@@ -1,14 +1,15 @@
 import pandas as pd
 from sklearn.cluster import KMeans
 import warnings
+import math
 from django_pandas.io import read_frame
 
 warnings.filterwarnings("ignore")
 
 
 #esta prmera línea cuando lo pase a django la cambio
-#base = request.data
-base = read_frame(Data.objects.all())
+base = request.data
+# base = read_frame(Data.objects.all())
 df = pd.DataFrame(base)
 df["PrecioLista"] = df["PrecioLista"].astype(float)
 df["PrecioFacturado"] = df["PrecioFacturado"].astype(float)
@@ -36,6 +37,38 @@ df_revenue.columns = ['Cliente', 'Revenue']
 
 df_unico1 = pd.merge(df_unico, df_revenue, on='Cliente', how='inner')
 
+Revenue = df_unico1[['Revenue']]
+
+#calculamos los puntos para la gráfica de codo que nos da el óptimo número de clusters
+def calculate_wcss(df):
+        wcss = []
+        
+        for n in range(1, 10):
+            kmeans = KMeans(n_clusters=n, max_iter=1000)
+            kmeans.fit(X=df)
+            wcss.append(kmeans.inertia_)
+    
+        return wcss
+    
+sum_of_squares_1 = calculate_wcss(Revenue)
+
+#calculamos el óptimo número de clusters
+def optimal_number_of_clusters(wcss):
+    x1, y1 = 1, wcss[0]
+    x2, y2 = 10, wcss[len(wcss)-1]
+
+    distances = []
+    for i in range(len(wcss)):
+        x0 = i+2
+        y0 = wcss[i]
+        numerator = abs((y2-y1)*x0 - (x2-x1)*y0 + x2*y1 - y2*x1)
+        denominator = math.sqrt((y2 - y1)**2 + (x2 - x1)**2)
+        distances.append(numerator/denominator)
+    
+    return distances.index(max(distances)) + 2
+
+n_1 = optimal_number_of_clusters(sum_of_squares_1)
+
 #función para clusterizar
 def clustering(cluster_number, cluster_data, target_field, cluster_name):
     # Revenue clusters
@@ -46,7 +79,7 @@ def clustering(cluster_number, cluster_data, target_field, cluster_name):
     return cluster_data
 
 
-df_unico1 = clustering(4, df_unico1, 'Revenue', 'RevenueCluster')
+df_unico1 = clustering(n_1, df_unico1, 'Revenue', 'RevenueCluster')
 
 # funcion para ordenar los clusters del mejor al peor
 def order_cluster(cluster_field_name, target_field_name, df, ascending):
@@ -72,8 +105,14 @@ df_max_purchase['Recency'] = (df_max_purchase['MaxPurchaseDate'].max()
 
 df_unico3 = pd.merge(df_unico1, df_max_purchase[['Cliente', 'Recency']], on='Cliente', how='inner')
 
+Recency = df_unico3[['Recency']]
+
+#Calculamos óptimo número de clusters
+sum_of_squares_2 = calculate_wcss(Recency)
+n_2 = optimal_number_of_clusters(sum_of_squares_2)
+
 #clusterizamos y ordenamos
-df_unico3 = clustering(4, df_unico3, 'Recency', 'RecencyCluster')
+df_unico3 = clustering(n_2, df_unico3, 'Recency', 'RecencyCluster')
 df_unico3 = order_cluster('RecencyCluster', 'Recency', df_unico3, False)
 
 # construir los clusters para la frecuency
@@ -82,8 +121,14 @@ df_frequency.columns = ['Cliente', 'Frequency']
 
 df_unico4 = pd.merge(df_unico3, df_frequency, on='Cliente', how='inner')
 
+Frequency = df_unico4[['Frequency']]
+
+#Calculamos óptimo número de clusters
+sum_of_squares_3 = calculate_wcss(Frequency)
+n_3 = optimal_number_of_clusters(sum_of_squares_3)
+
 #clusterizamos y ordenamos
-df_unico4 = clustering(4, df_unico4, 'Frequency', 'FrequencyCluster')
+df_unico4 = clustering(n_3, df_unico4, 'Frequency', 'FrequencyCluster')
 df_unico4 = order_cluster('FrequencyCluster', 'Frequency', df_unico4, True)
 
 # construyendo la segmentación total
@@ -91,10 +136,8 @@ df_unico4['OverallScore'] = df_unico4['RecencyCluster'] + df_unico4['FrequencyCl
                             + df_unico4['RevenueCluster']
 
 # asignamos nombres a los segmentos
-df_unico4['Segment'] = 'Low-Value'
-df_unico4.loc[df_unico4['OverallScore'] > 3, 'Segment'] = 'Mid-Value'
-df_unico4.loc[df_unico4['OverallScore'] > 5, 'Segment'] = 'High-Value'
-df_unico4.loc[df_unico4['OverallScore'] > 7, 'Segment'] = 'VIP'
+labelsNoOneTimers = ['Low-Value', 'Mid-Value', 'High-Value', 'VIP']
+df_unico4['Segment'] = pd.cut(df_unico4['OverallScore'], bins=4, labels=labelsNoOneTimers)
 
 # filtrar base de datos para One-timers
 df_one = df.groupby('Identificador')["Actividad"].nunique().reset_index()
@@ -103,20 +146,38 @@ df_one = df_one.loc[df_one["#Actividad"] == 1]
 
 df_unico_one_1 = pd.merge(df_one, df_revenue, on='Cliente', how='inner')
 
+RevenueOne = df_unico_one_1[['Revenue']]
+
+#Calculamos óptimo número de clusters
+sum_of_squares_4 = calculate_wcss(RevenueOne)
+n_4 = optimal_number_of_clusters(sum_of_squares_4)
+
 #clusterizamos y ordenamos
-df_unico_one_1 = clustering(3, df_unico_one_1, 'Revenue', 'RevenueCluster')
+df_unico_one_1 = clustering(n_4, df_unico_one_1, 'Revenue', 'RevenueCluster')
 df_unico_one_1 = order_cluster('RevenueCluster', 'Revenue', df_unico_one_1, True)
 
 df_unico_one_2 = pd.merge(df_unico_one_1, df_max_purchase[['Cliente','Recency']], on='Cliente', how='inner')
 
+RecencyOne = df_unico_one_2[['Recency']]
+
+#Calculamos óptimo número de clusters
+sum_of_squares_5 = calculate_wcss(RecencyOne)
+n_5 = optimal_number_of_clusters(sum_of_squares_5)
+
 #clusterizamos y ordenamos
-df_unico_one_2 = clustering(3, df_unico_one_2, 'Recency', 'RecencyCluster')
+df_unico_one_2 = clustering(n_5, df_unico_one_2, 'Recency', 'RecencyCluster')
 df_unico_one_2 = order_cluster('RecencyCluster', 'Recency', df_unico_one_2, False)
 
 df_unico_one_3 = pd.merge(df_unico_one_2, df_frequency, on='Cliente', how='left')
 
+FrequencyOne = df_unico_one_3[['Frequency']]
+
+#Calculamos óptimo número de clusters
+sum_of_squares_6 = calculate_wcss(FrequencyOne)
+n_6 = optimal_number_of_clusters(sum_of_squares_6)
+
 #clusterizamos y ordenamos
-df_unico_one_3 = clustering(1, df_unico_one_3, 'Frequency', 'FrequencyCluster')
+df_unico_one_3 = clustering(n_6, df_unico_one_3, 'Frequency', 'FrequencyCluster')
 df_unico_one_3 = order_cluster('FrequencyCluster', 'Frequency', df_unico_one_3, True)
 
 #construyendo la segmentación total one-timers
@@ -124,8 +185,8 @@ df_unico_one_3['OverallScore'] = df_unico_one_3['RecencyCluster'] + df_unico_one
                                  df_unico_one_3['RevenueCluster']
 
 # asignamos nombres a los segmentos
-df_unico_one_3['Segment'] = 'One-Low-Value'
-df_unico_one_3.loc[df_unico_one_3['OverallScore'] > 4, 'Segment'] = 'One-Mid-Value'
+labelsOneTimers = ['One-Low-Value', 'One-Mid-Value']
+df_unico_one_3['Segment'] = pd.cut(df_unico_one_3['OverallScore'], bins=2, labels=labelsOneTimers)
 
 # filtrar para segmentación final one-timers
 df_unico_final = pd.DataFrame(df["Identificador"].unique())
@@ -192,7 +253,7 @@ df_imputar2 = df_imputar.set_index('Segment')
 df_base6 = df_base5.combine_first(df_imputar2).reset_index()
 df_base6["Factor"] = df_base6["Recency"] / df_base6["Frecuencia"]
 
-# Creando un segmentos de factor
+# Creando segmentos de factor
 imp_segm = pd.cut(df_base6['Factor'], [-1, 4, 6, 1000])
 
 # Asignar etiquetas a los segmentos del factor
@@ -203,7 +264,7 @@ x = pd.cut(df_base7["RangoFactor"].to_list(), bins)
 x.categories = ["Activo", "Peligro", "Desertor"]
 df_base7['Ciclo'] = x
 
-# Fucionar tabla final
+# Fusionar tabla final
 df_base8 = pd.merge(df_base6, df_base7, left_index=True, right_index=True)
 
 # Agregar MOnto Lista
@@ -212,12 +273,17 @@ df_LISTA.columns = ['Cliente', '$LISTA']
 
 df_base9 = pd.merge(df_base8, df_LISTA, on="Cliente")
 
+df_base9.loc[df_base9['Segment'] == 'One-Low-Value','Segment'] = 'One-Timer' 
+df_base9.loc[df_base9['Segment'] == 'One-Mid-Value','Segment'] = 'One-Timer' 
+
 #ordenamiento
 df_plot1 = df_base9.groupby("Segment")["Cliente"].count()
 df_plot1 = pd.DataFrame(df_plot1).reset_index()
+
 df_plot1["%Cli"] = (df_plot1["Cliente"] / df_plot1["Cliente"].sum() * 100).round(0)
 df_plot2 = df_base9.groupby("Segment")["$Ots"].sum()
 df_plot2 = pd.DataFrame(df_plot2).reset_index()
+
 df_plot3 = pd.merge(df_plot1, df_plot2, on='Segment').round(0)
 df_plot3["%$"] = (df_plot3["$Ots"] / df_plot3["$Ots"].sum() * 100).round(0)
 df_plot4 = df_base9.groupby("Segment")["$LISTA"].sum()
@@ -226,7 +292,6 @@ df_plot5 = pd.merge(df_plot3, df_plot4, on='Segment').round(0)
 df_plot5["Des%"] = ((1 - df_plot5["$Ots"] / df_plot5["$LISTA"]) * 100).round(0)
 df_plot5["VIP"] = (df_plot5["$Ots"] / df_plot5["Cliente"]).round(0)
 df_plot5["VIPx"] = (df_plot5["VIP"] / df_plot5["VIP"].min()).round(0)
-df_plot5 = df_plot5.sort_values(by=["VIPx"], ascending=False)
 df_plot6 = (df_base9.groupby("Segment")["Frecuencia"].mean()).round(0)
 df_plot6 = pd.DataFrame(df_plot6).reset_index()
 df_plot7 = pd.merge(df_plot5, df_plot6, on='Segment')
@@ -296,6 +361,16 @@ Gasto_OT_Total = (Monto_Total / Ot_Total).round(0)
 
 mask7 = (df_plot15["Segment"] == 'Total')  # imputamos
 df_plot15.loc[mask7, 'Gasto/OT'] = df_plot15.loc[mask7, 'Gasto/OT'].apply(lambda x: Gasto_OT_Total)
+
+#orden final
+df_plot15['OrdenFinal'] = ''
+df_plot15.loc[df_plot15['Segment'] == 'VIP','OrdenFinal'] = 5
+df_plot15.loc[df_plot15['Segment'] == 'High-Value','OrdenFinal'] = 4
+df_plot15.loc[df_plot15['Segment'] == 'Mid-Value','OrdenFinal'] = 3
+df_plot15.loc[df_plot15['Segment'] == 'Low-Value','OrdenFinal'] = 2
+df_plot15.loc[df_plot15['Segment'] == 'One-Timer','OrdenFinal'] = 1
+df_plot15.loc[df_plot15['Segment'] == 'Total','OrdenFinal'] = 0
+df_plot15 = df_plot15.sort_values(by='OrdenFinal', ascending=False)
 
 df_plot16 = df_plot15[["Segment", "Gasto/OT", "Cliente", "%Cli", "$Ots", "%$", "Des%", "VIPx", "VIP",
                        "Frecuencia", "#Ot/Cli", "Activo", "Alerta", "Desertor"]]
