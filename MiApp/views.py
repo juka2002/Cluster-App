@@ -1,15 +1,14 @@
 from django.shortcuts import render
-from .models import Data, DataAnalysis
+
 # from .resources import DataResource
 from django.contrib import messages
 from tablib import Dataset
 from MiApp.models import Data
+from api.views import cluster_function
 
-from django_pandas.io import read_frame
-import pandas as pd
-from sklearn.cluster import KMeans
 import warnings
-
+import pandas as pd
+import numpy as np
 warnings.filterwarnings("ignore")
 
 # Create your views here.
@@ -38,7 +37,10 @@ def simple_upload(request):
 				data[6],
 				)
 			value.save()
-
+		df = pd.DataFrame(np.array(imported_data))
+		df = df.iloc[:, 0:7]
+		df.columns = ['id', 'Identificador', 'OC', 'FechaApertura', 'Cantidad', 'PrecioLista', 'PrecioFacturado']
+		cluster_function(df)
 	return	render(request,'base.html')
 
 		# #leer la data
