@@ -391,17 +391,27 @@ def cluster_function(df):
 		df_plot15.loc[df_plot15['Segment'] == 'Low-Value','OrdenFinal'] = 2
 		df_plot15.loc[df_plot15['Segment'] == 'One-Timer','OrdenFinal'] = 1
 		df_plot15.loc[df_plot15['Segment'] == 'Total','OrdenFinal'] = 0
-		df_plot15 = df_plot15.sort_values(by='OrdenFinal', ascending=False)
+		df_plot15 = df_plot15.sort_values(by='OrdenFinal', ascending=False).reset_index(drop=True)
 
-		df_plot16 = df_plot15[["Segment", "Gasto/OT", "Cliente", "%Cli", "$Ots", "%$", "Des%", "VIPx", "VIP",
-							   "Frecuencia", "#Ot/Cli", "Activo", "Alerta", "Desertor"]]
+		df_plot16 = df_plot15[["Segment", "Gasto/OT", "Cliente", "%Cli", "$Ots", "%$", "Des%",
+							   "VIPx", "VIP", "Frecuencia", "#Ot/Cli", "Activo", "Alerta",
+							   "Desertor"]].rename(
+			columns={
+				'%Cli'     : 'PorCli',
+				'$Ots'     : 'MontoOts',
+				'%$'       : 'PorOts',
+				'Des%'     : 'Des',
+				'#Ot/Cli'  : 'OtCli',
+				'Gasto/OT' : 'GastoOT',
+			}
+		)
 
 		df_base10 = df_base9.copy()
 		df_base10["Gasto/Oc"] = (df_base10["$Ots"] / df_base10["#Ots"]).round(0)
 		df_base10["Descuento"] = ((df_base10["$LISTA"] / df_base10["$Ots"] - 1) * 100).round(0)
 		df_base10 = df_base10.round(0)
 		df_base10 = df_base10[["Cliente", "$LISTA", "$Ots", "Descuento", "#Ots", "Gasto/Oc", "#DiasPriUlt",
-							   "Frequency", "Frecuencia", "Recency", "Factor", "RangoFactor", "Ciclo", "Segment"]]
+					   "Frequency", "Frecuencia", "Recency", "Factor", "RangoFactor", "Ciclo", "Segment"]]
 
 		#print(df_plot16)
 		#df = df_plot16.to_json()

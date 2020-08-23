@@ -7,9 +7,9 @@ from django_pandas.io import read_frame
 warnings.filterwarnings("ignore")
 
 
-#esta prmera línea cuando lo pase a django la cambio
+#esta primera línea cuando lo pase a django la cambio
 base = request.data
-# base = read_frame(Data.objects.all())
+#base = read_frame(Data.objects.all())
 df = pd.DataFrame(base)
 df["PrecioLista"] = df["PrecioLista"].astype(float)
 df["PrecioFacturado"] = df["PrecioFacturado"].astype(float)
@@ -370,10 +370,19 @@ df_plot15.loc[df_plot15['Segment'] == 'Mid-Value','OrdenFinal'] = 3
 df_plot15.loc[df_plot15['Segment'] == 'Low-Value','OrdenFinal'] = 2
 df_plot15.loc[df_plot15['Segment'] == 'One-Timer','OrdenFinal'] = 1
 df_plot15.loc[df_plot15['Segment'] == 'Total','OrdenFinal'] = 0
-df_plot15 = df_plot15.sort_values(by='OrdenFinal', ascending=False)
+df_plot15 = df_plot15.sort_values(by='OrdenFinal', ascending=False).reset_index(drop=True)
 
-df_plot16 = df_plot15[["Segment", "Gasto/OT", "Cliente", "%Cli", "$Ots", "%$", "Des%", "VIPx", "VIP",
-                       "Frecuencia", "#Ot/Cli", "Activo", "Alerta", "Desertor"]]
+df_plot16 = df_plot15[["Segment", "Gasto/OT", "Cliente", "%Cli", "$Ots", "%$", "Des%", 
+                       "VIPx", "VIP", "Frecuencia", "#Ot/Cli", "Activo", "Alerta", 
+                       "Desertor"]].rename(
+                                        columns={
+                                            '%Cli'   : 'PorCli',
+                                            '$Ots'   : 'MontoOts',
+                                            '%$'     : 'PorOts',
+                                            'Des%'   : 'Des',
+                                            '#Ot/Cli': 'OtCli',
+                                        }
+                                    )
 
 df_base10 = df_base9.copy()
 df_base10["Gasto/Oc"] = (df_base10["$Ots"] / df_base10["#Ots"]).round(0)
