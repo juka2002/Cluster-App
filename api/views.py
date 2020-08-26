@@ -26,12 +26,12 @@ class DataViewSet(viewsets.ModelViewSet):
 	# authentication_classes = [SessionAuthentication, BasicAuthentication]
 	# permission_classes = [IsAuthenticated]
 
-# @api_view(['POST'])
-def cluster_function(df):
+@api_view(['POST'])
+def cluster_function(data):
 	try:
 		#base = request.data
 		#base = read_frame(Data.objects.all())
-		# df = pd.DataFrame(unit)
+		df = pd.read_json(data)
 		df["PrecioLista"] = df["PrecioLista"].astype(float)
 		df["PrecioFacturado"] = df["PrecioFacturado"].astype(float)
 		df['FechaApertura'] = pd.to_datetime(df['FechaApertura'])
@@ -414,9 +414,9 @@ def cluster_function(df):
 					   "Frequency", "Frecuencia", "Recency", "Factor", "RangoFactor", "Ciclo", "Segment"]]
 
 		#print(df_plot16)
-		#df = df_plot16.to_json()
+		df = df_plot16.to_json()
 
-		return Response( print(df_plot16) )
+		return JsonResponse(df, safe=False)
 	except ValueError as e:
 		return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
 # class DataAnalysisSet(viewsets.ModelViewSet):
