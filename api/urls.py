@@ -1,12 +1,12 @@
 from django.urls import path, include
 from . import views
-from .views import DataViewSet #DataAnalysisSet, read_data
+from .views import DataViewSet, DataAnalysisSet
 # data_list, data_detail, DataAPIView, DataDetails, GenericAPIView
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register('api', DataViewSet)
-# router.register('api-seg', DataAnalysisSet)
+router.register('api-seg', DataAnalysisSet)
 
 urlpatterns = [
 	#api con funciones

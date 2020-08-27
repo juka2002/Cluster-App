@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from rest_framework.parsers import JSONParser
-from api.serializers import DataSerializer #DataAnalysisSerializer
+from api.serializers import DataSerializer, DataAnalysisSerializer
 from MiApp.models import Data, DataAnalysis
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -26,15 +26,33 @@ class DataViewSet(viewsets.ModelViewSet):
 	# authentication_classes = [SessionAuthentication, BasicAuthentication]
 	# permission_classes = [IsAuthenticated]
 
+class DataAnalysisSet(viewsets.ModelViewSet):
+	serializer_class = DataAnalysisSerializer
+	queryset = DataAnalysis.objects.all()
+	# authentication_classes = [SessionAuthentication, BasicAuthentication]
+	# permission_classes = [IsAuthenticated]
+
 @api_view(['POST'])
 def cluster_function(data):
 	try:
 		#base = request.data
 		#base = read_frame(Data.objects.all())
 		df = pd.read_json(data)
+
 		df["PrecioLista"] = df["PrecioLista"].astype(float)
 		df["PrecioFacturado"] = df["PrecioFacturado"].astype(float)
 		df['FechaApertura'] = pd.to_datetime(df['FechaApertura'])
+
+		for datos in df.itertuples():
+			datos = Data.objects.create(
+				id = datos.id,
+				Identificador = datos.Identificador,
+				OC = datos.OC,
+				FechaApertura = datos.FechaApertura,
+				Cantidad = datos.Cantidad,
+				PrecioLista = datos.PrecioLista,
+				PrecioFacturado = datos.PrecioFacturado
+			)
 
 		#completa la data
 		df["OT FINAL"] = df["Identificador"].astype("str") + df["OC"].astype("str") \
@@ -406,6 +424,24 @@ def cluster_function(data):
 			}
 		)
 
+		for datos2 in df_plot16.itertuples():
+			datos2 = DataAnalysis.objects.create(
+				Segment = datos2.Segment,
+				GastoOT = datos2.GastoOT,
+				Cliente = datos2.Cliente,
+				PorCli = datos2.PorCli,
+				MontoOts = datos2.MontoOts,
+				PorOts = datos2.PorOts,
+				Des = datos2.Des,
+				VIPx = datos2.VIPx,
+				VIP = datos2.VIP,
+				Frecuencia = datos2.Frecuencia,
+				OtCli = datos2.OtCli,
+				Activo = datos2.Activo,
+				Alerta = datos2.Alerta,
+				Desertor = datos2.Desertor,
+				)
+
 		df_base10 = df_base9.copy()
 		df_base10["Gasto/Oc"] = (df_base10["$Ots"] / df_base10["#Ots"]).round(0)
 		df_base10["Descuento"] = ((df_base10["$LISTA"] / df_base10["$Ots"] - 1) * 100).round(0)
@@ -419,11 +455,7 @@ def cluster_function(data):
 		return JsonResponse(df, safe=False)
 	except ValueError as e:
 		return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
-# class DataAnalysisSet(viewsets.ModelViewSet):
-# 	serializer_class = DataAnalysisSerializer
-# 	queryset = DataAnalysis.objects.all()
-	# authentication_classes = [SessionAuthentication, BasicAuthentication]
-	# permission_classes = [IsAuthenticated]
+
 
 #Aquí hago la api creada en forma Genérica
 # class GenericAPIView(
