@@ -16,6 +16,7 @@ from django_pandas.io import read_frame
 import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
+import datetime as dt
 import math
 
 # Create your views here.
@@ -41,11 +42,10 @@ def cluster_function(data):
 
 		df["PrecioLista"] = df["PrecioLista"].astype(float)
 		df["PrecioFacturado"] = df["PrecioFacturado"].astype(float)
-		df['FechaApertura'] = pd.to_datetime(df['FechaApertura'])
+		df['FechaApertura'] = pd.TimedeltaIndex(df['FechaApertura'], unit='d') + dt.datetime(1900,1,1)
 
 		for datos in df.itertuples():
 			datos = Data.objects.create(
-				id = datos.id,
 				Identificador = datos.Identificador,
 				OC = datos.OC,
 				FechaApertura = datos.FechaApertura,
@@ -319,16 +319,16 @@ def cluster_function(data):
 		df_plot1 = df_base9.groupby("Segment")["Cliente"].count()
 		df_plot1 = pd.DataFrame(df_plot1).reset_index()
 
-		df_plot1["%Cli"] = (df_plot1["Cliente"] / df_plot1["Cliente"].sum() * 100).round(0)
+		df_plot1["%Cli"] = (df_plot1["Cliente"] / (df_plot1["Cliente"].sum())).round(0)
 		df_plot2 = df_base9.groupby("Segment")["$Ots"].sum()
 		df_plot2 = pd.DataFrame(df_plot2).reset_index()
 
 		df_plot3 = pd.merge(df_plot1, df_plot2, on='Segment').round(0)
-		df_plot3["%$"] = (df_plot3["$Ots"] / df_plot3["$Ots"].sum() * 100).round(0)
+		df_plot3["%$"] = (df_plot3["$Ots"] / (df_plot3["$Ots"].sum())).round(2)
 		df_plot4 = df_base9.groupby("Segment")["$LISTA"].sum()
 		df_plot4 = pd.DataFrame(df_plot4).reset_index()
 		df_plot5 = pd.merge(df_plot3, df_plot4, on='Segment').round(0)
-		df_plot5["Des%"] = ((1 - df_plot5["$Ots"] / df_plot5["$LISTA"]) * 100).round(0)
+		df_plot5["Des%"] = (1 - df_plot5["$Ots"] / df_plot5["$LISTA"]).round(2)
 		df_plot5["VIP"] = (df_plot5["$Ots"] / df_plot5["Cliente"]).round(0)
 		df_plot5["VIPx"] = (df_plot5["VIP"] / df_plot5["VIP"].min()).round(0)
 		df_plot6 = (df_base9.groupby("Segment")["Frecuencia"].mean()).round(0)
@@ -366,7 +366,7 @@ def cluster_function(data):
 		Monto_Total = pd.DataFrame(df_plot15.loc[df_plot15["Segment"] == "Total"]["$Ots"])
 		Monto_Total = Monto_Total.iloc[0]["$Ots"]
 
-		Des_total = ((Lista_Total / Monto_Total - 1) * 100).round(0)
+		Des_total = ((Lista_Total / Monto_Total - 1)).round(2)
 
 		mask3 = (df_plot15["Segment"] == 'Total')  # imputamos
 		df_plot15.loc[mask3, 'Des%'] = df_plot15.loc[mask3, 'Des%'].apply(lambda x: Des_total)
@@ -415,12 +415,12 @@ def cluster_function(data):
 							   "VIPx", "VIP", "Frecuencia", "#Ot/Cli", "Activo", "Alerta",
 							   "Desertor"]].rename(
 			columns={
-				'%Cli'     : 'PorCli',
-				'$Ots'     : 'MontoOts',
-				'%$'       : 'PorOts',
-				'Des%'     : 'Des',
-				'#Ot/Cli'  : 'OtCli',
-				'Gasto/OT' : 'GastoOT',
+				'%Cli'   : 'PorCli',
+				'$Ots'   : 'MontoOts',
+				'%$'     : 'PorOts',
+				'Des%'   : 'Des',
+				'#Ot/Cli': 'OtCli',
+				'Gasto/OT': 'GastoOT',
 			}
 		)
 
