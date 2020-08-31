@@ -449,7 +449,6 @@ def cluster_function(data):
 		df_base10 = df_base10[["Cliente", "$LISTA", "$Ots", "Descuento", "#Ots", "Gasto/Oc", "#DiasPriUlt",
 					   "Frequency", "Frecuencia", "Recency", "Factor", "RangoFactor", "Ciclo", "Segment"]]
 
-		#print(df_plot16)
 		df = df_plot16.to_json()
 
 		return JsonResponse(df, safe=False)
