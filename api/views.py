@@ -79,10 +79,15 @@ def cluster_function(data):
 		Revenue = df_unico1[['Revenue']]
 
 		#calculamos los puntos para la gráfica de codo que nos da el óptimo número de clusters
+		min_clusters = 1
+		max_clusters = 10
+		muestra = df_unico1.Revenue.count()
+
+		#calculamos los puntos para la gráfica de codo que nos da el óptimo número de clusters
 		def calculate_wcss(df):
 			wcss = []
 
-			for n in range(1, 10):
+			for n in range(min_clusters, min(muestra+1,max_clusters+1)):
 				kmeans = KMeans(n_clusters=n, max_iter=1000)
 				kmeans.fit(X=df)
 				wcss.append(kmeans.inertia_)
@@ -93,18 +98,18 @@ def cluster_function(data):
 
 		#calculamos el óptimo número de clusters
 		def optimal_number_of_clusters(wcss):
-			x1, y1 = 1, wcss[0]
-			x2, y2 = 10, wcss[len(wcss)-1]
+			x0, y0 = min_clusters, wcss[0]
+			x1, y1 = max_clusters, wcss[len(wcss)-1]
 
 			distances = []
-			for i in range(len(wcss)):
-				x0 = i+2
-				y0 = wcss[i]
-				numerator = abs((y2-y1)*x0 - (x2-x1)*y0 + x2*y1 - y2*x1)
-				denominator = math.sqrt((y2 - y1)**2 + (x2 - x1)**2)
+			for i in range(x0,min(muestra+1,max_clusters+1)):
+				x = i
+				y = wcss[i-min_clusters]
+				numerator = abs((y1-y0)*x - (x1-x0)*y + x1*y0 - y1*x0)
+				denominator = ((y1 - y0)**2 + (x1 - x0)**2)**0.5
 				distances.append(numerator/denominator)
 
-			return distances.index(max(distances)) + 2
+			return distances.index(max(distances)) + min_clusters
 
 		n_1 = optimal_number_of_clusters(sum_of_squares_1)
 
@@ -170,9 +175,32 @@ def cluster_function(data):
 		df_unico4 = clustering(n_3, df_unico4, 'Frequency', 'FrequencyCluster')
 		df_unico4 = order_cluster('FrequencyCluster', 'Frequency', df_unico4, True)
 
+		#Escalamos la data de clusters para que todas las columnas tengan el mismo peso
+		Revenue_max = max(df_unico4['RevenueCluster'])
+		Recency_max = max(df_unico4['RecencyCluster'])
+		Frequency_max = max(df_unico4['FrequencyCluster'])
+		Indice = max(Revenue_max,Recency_max,Frequency_max)
+
+		PesoRevenue = 2
+		PesoRecency = 1
+		PesoFrequency = 1
+
+		escalar1 = df_unico4['RevenueCluster']
+		lower, upper = 0, Indice
+		df_unico4['RevenueClusterF'] = [lower + (upper - lower) * x/max(1,max(escalar1)) for x in escalar1]
+		df_unico4['RevenueClusterF'] = df_unico4['RevenueClusterF'].astype('int')*PesoRevenue
+
+		escalar2 = df_unico4['RecencyCluster']
+		df_unico4['RecencyClusterF'] = [lower + (upper - lower) * x/max(1,max(escalar2)) for x in escalar2]
+		df_unico4['RecencyClusterF'] = df_unico4['RecencyClusterF'].astype('int')*PesoRecency
+
+		escalar3 = df_unico4['FrequencyCluster']
+		df_unico4['FrequencyClusterF'] = [lower + (upper - lower) * x/max(1,max(escalar3)) for x in escalar3]
+		df_unico4['FrequencyClusterF'] = df_unico4['FrequencyClusterF'].astype('int')*PesoFrequency
+
 		# construyendo la segmentación total
-		df_unico4['OverallScore'] = df_unico4['RecencyCluster'] + df_unico4['FrequencyCluster'] \
-									+ df_unico4['RevenueCluster']
+		df_unico4['OverallScore'] = df_unico4['RecencyClusterF'] + df_unico4['FrequencyClusterF'] \
+									+ df_unico4['RevenueClusterF']
 
 		# asignamos nombres a los segmentos
 		labelsNoOneTimers = ['Low-Value', 'Mid-Value', 'High-Value', 'VIP']
@@ -219,9 +247,28 @@ def cluster_function(data):
 		df_unico_one_3 = clustering(n_6, df_unico_one_3, 'Frequency', 'FrequencyCluster')
 		df_unico_one_3 = order_cluster('FrequencyCluster', 'Frequency', df_unico_one_3, True)
 
+		#Escalamos la data de clusters para que todas las columnas tengan el mismo peso
+		Revenue_max2 = max(df_unico_one_3['RevenueCluster'])
+		Recency_max2 = max(df_unico_one_3['RecencyCluster'])
+		Frequency_max2 = max(df_unico_one_3['FrequencyCluster'])
+		Indice2 = max(Revenue_max2,Recency_max2,Frequency_max2)
+
+		escalar4 = df_unico_one_3['RevenueCluster']
+		lower, upper = 0, Indice2
+		df_unico_one_3['RevenueClusterF'] = [lower + (upper - lower) * x/max(1,max(escalar4)) for x in escalar4]
+		df_unico_one_3['RevenueClusterF'] = df_unico_one_3['RevenueClusterF'].astype('int')*PesoRevenue
+
+		escalar5 = df_unico_one_3['RecencyCluster']
+		df_unico_one_3['RecencyClusterF'] = [lower + (upper - lower) * x/max(1,max(escalar5)) for x in escalar5]
+		df_unico_one_3['RecencyClusterF'] = df_unico_one_3['RecencyClusterF'].astype('int')*PesoRecency
+
+		escalar6 = df_unico_one_3['FrequencyCluster']
+		df_unico_one_3['FrequencyClusterF'] = [lower + (upper - lower) * x/max(1,max(escalar6)) for x in escalar6]
+		df_unico_one_3['FrequencyClusterF'] = df_unico_one_3['FrequencyClusterF'].astype('int')*PesoFrequency
+
 		#construyendo la segmentación total one-timers
-		df_unico_one_3['OverallScore'] = df_unico_one_3['RecencyCluster'] + df_unico_one_3['FrequencyCluster'] + \
-										 df_unico_one_3['RevenueCluster']
+		df_unico_one_3['OverallScore'] = df_unico_one_3['RecencyClusterF'] + df_unico_one_3['FrequencyClusterF'] + \
+										 df_unico_one_3['RevenueClusterF']
 
 		# asignamos nombres a los segmentos
 		labelsOneTimers = ['One-Low-Value', 'One-Mid-Value']
@@ -400,6 +447,37 @@ def cluster_function(data):
 
 		mask7 = (df_plot15["Segment"] == 'Total')  # imputamos
 		df_plot15.loc[mask7, 'Gasto/OT'] = df_plot15.loc[mask7, 'Gasto/OT'].apply(lambda x: Gasto_OT_Total)
+
+		#Agregamos filas 0 en caso de clusters faltantes
+		existe_VIP = df_plot15.loc[df_plot15['Segment'] == 'VIP']
+		conteo1 = len(existe_VIP.index)
+		if conteo1 == 0:
+			df_plot15.loc[len(df_plot15)] = 0
+			df_plot15['Segment'] = df_plot15['Segment'].replace({0:'VIP'})
+
+		existe_High = df_plot15.loc[df_plot15['Segment'] == 'High-Value']
+		conteo2 = len(existe_High.index)
+		if conteo2 == 0:
+			df_plot15.loc[len(df_plot15)] = 0
+			df_plot15['Segment'] = df_plot15['Segment'].replace({0:'High-Value'})
+
+		existe_Mid = df_plot15.loc[df_plot15['Segment'] == 'Mid-Value']
+		conteo3 = len(existe_Mid.index)
+		if conteo3 == 0:
+			df_plot15.loc[len(df_plot15)] = 0
+			df_plot15['Segment'] = df_plot15['Segment'].replace({0:'Mid-Value'})
+
+		existe_Low = df_plot15.loc[df_plot15['Segment'] == 'Low-Value']
+		conteo4 = len(existe_Low.index)
+		if conteo4 == 0:
+			df_plot15.loc[len(df_plot15)] = 0
+			df_plot15['Segment'] = df_plot15['Segment'].replace({0:'Low-Value'})
+
+		existe_One = df_plot15.loc[df_plot15['Segment'] == 'One-Timer']
+		conteo5 = len(existe_One.index)
+		if conteo5 == 0:
+			df_plot15.loc[len(df_plot15)] = 0
+			df_plot15['Segment'] = df_plot15['Segment'].replace({0:'One-Timer'})
 
 		#orden final
 		df_plot15['OrdenFinal'] = ''
