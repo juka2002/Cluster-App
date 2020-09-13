@@ -528,7 +528,6 @@ def cluster_function(data):
 					   "Frequency", "Frecuencia", "Recency", "Factor", "RangoFactor", "Ciclo", "Segment"]]
 
 		df = df_plot16.to_json()
-		pritn('ok')
 
 		return JsonResponse(df, safe=False)
 	except ValueError as e:
