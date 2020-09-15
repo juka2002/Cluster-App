@@ -18,6 +18,7 @@ import pandas as pd
 from sklearn.cluster import KMeans
 import datetime as dt
 import math
+import json
 
 # Create your views here.
 #Hago la api con el data ViewSet
@@ -527,9 +528,34 @@ def cluster_function(data):
 		df_base10 = df_base10[["Cliente", "$LISTA", "$Ots", "Descuento", "#Ots", "Gasto/Oc", "#DiasPriUlt",
 					   "Frequency", "Frecuencia", "Recency", "Factor", "RangoFactor", "Ciclo", "Segment"]]
 
-		df = df_plot16.to_json()
+		df_base11 = df_base10[["Cliente", "$LISTA", "$Ots", "Descuento", "#Ots", "Gasto/Oc", "#DiasPriUlt",
+					   "Frequency", "Frecuencia", "Recency", "Factor", "RangoFactor", "Ciclo", "Segment"]].rename(
+			columns={
+				'Cliente'   	: 'A.Cliente',
+				'$LISTA'   		: 'B.$LISTA',
+				'$Ots'     		: 'C.$Ots',
+				'Descuento'   	: 'D.Descuento',
+				'#Ots'			: 'E.#Ots',
+				'Gasto/Oc'		: 'F.Gasto/Oc',
+				'#DiasPriUlt'	: 'G.#DiasPriUlt',
+				'Frequency'		: 'H.#Actividades',
+				'Frecuencia'	: 'I.Frecuencia',
+				'Recency'		: 'J.Recency',
+				'Factor'		: 'K.FactorCiclo',
+				'RangoFactor'	: 'L.RangoFactor',
+				'Ciclo'			: 'M.CicloDeVida',
+				'Segment'		: 'N.Segmento',
+			}
+		)
 
-		return JsonResponse(df, safe=False)
+		df = df_plot16.to_json()
+		df2 = df_base11.to_json()
+		df3 = []
+		df3.append(df)
+		df3.append(df2)
+		df4 = json.dumps(df3)
+
+		return JsonResponse(df4, safe=False)
 	except ValueError as e:
 		return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
 
