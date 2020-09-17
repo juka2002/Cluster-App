@@ -325,9 +325,12 @@ def cluster_function(data):
 
 		df_imputar = df_base4.groupby("Segment")["Frecuencia"].mean().reset_index()
 
+		df_imputar_Low = df_imputar.loc[df_imputar['Segment'] == 'Low-Value']
+		df_imputar_Mid = df_imputar.loc[df_imputar['Segment'] == 'Mid-Value']
+
 		#imputar el valor de frecuencia encontrado
-		LV = df_imputar.iloc[1]["Frecuencia"]  # definimos variable Low Value
-		MV = df_imputar.iloc[2]["Frecuencia"]  # definimos variable Mid Value
+		LV = df_imputar_Low.iloc[0]["Frecuencia"] # definimos variable Low Value
+		MV = df_imputar_Mid.iloc[0]["Frecuencia"]  # definimos variable Mid Value
 
 		mask1 = (df_imputar["Frecuencia"].isnull()) & (df_imputar["Segment"] == 'One-Low-Value')
 		df_imputar.loc[mask1, 'Frecuencia'] = df_imputar.loc[mask1, 'Frecuencia'].apply(lambda x: LV)
@@ -367,17 +370,17 @@ def cluster_function(data):
 		df_plot1 = df_base9.groupby("Segment")["Cliente"].count()
 		df_plot1 = pd.DataFrame(df_plot1).reset_index()
 
-		df_plot1["%Cli"] = (df_plot1["Cliente"] / (df_plot1["Cliente"].sum())).round(0)
+		df_plot1["%Cli"] = (df_plot1["Cliente"] / (df_plot1["Cliente"].sum())).round(2)
 		df_plot2 = df_base9.groupby("Segment")["$Ots"].sum()
 		df_plot2 = pd.DataFrame(df_plot2).reset_index()
 
-		df_plot3 = pd.merge(df_plot1, df_plot2, on='Segment').round(0)
+		df_plot3 = pd.merge(df_plot1, df_plot2, on='Segment').round(2)
 		df_plot3["%$"] = (df_plot3["$Ots"] / (df_plot3["$Ots"].sum())).round(2)
 		df_plot4 = df_base9.groupby("Segment")["$LISTA"].sum()
 		df_plot4 = pd.DataFrame(df_plot4).reset_index()
-		df_plot5 = pd.merge(df_plot3, df_plot4, on='Segment').round(0)
+		df_plot5 = pd.merge(df_plot3, df_plot4, on='Segment').round(2)
 		df_plot5["Des%"] = (1 - df_plot5["$Ots"] / df_plot5["$LISTA"]).round(2)
-		df_plot5["VIP"] = (df_plot5["$Ots"] / df_plot5["Cliente"]).round(0)
+		df_plot5["VIP"] = (df_plot5["$Ots"] / df_plot5["Cliente"]).round(2)
 		df_plot5["VIPx"] = (df_plot5["VIP"] / df_plot5["VIP"].min()).round(0)
 		df_plot6 = (df_base9.groupby("Segment")["Frecuencia"].mean()).round(0)
 		df_plot6 = pd.DataFrame(df_plot6).reset_index()
@@ -402,7 +405,7 @@ def cluster_function(data):
 		df_plot14 = pd.merge(df_plot13, df_plot11, on='Segment', how="left")
 		df_plot15 = pd.merge(df_plot14, df_plot12, on='Segment', how="left")
 		df_plot15 = df_plot15.fillna(0)
-		df_plot15["Gasto/OT"] = (df_plot15["$Ots"] / df_plot15["#Ots"]).round(0)
+		df_plot15["Gasto/OT"] = (df_plot15["$Ots"] / df_plot15["#Ots"]).round(2)
 		df_plot15 = df_plot15.append(df_plot15.sum(numeric_only=True), ignore_index=True)
 		df_plot15 = df_plot15.fillna("Total")
 
@@ -529,7 +532,7 @@ def cluster_function(data):
 					   "Frequency", "Frecuencia", "Recency", "Factor", "RangoFactor", "Ciclo", "Segment"]]
 
 		df_base11 = df_base10[["Cliente", "$LISTA", "$Ots", "Descuento", "#Ots", "Gasto/Oc", "#DiasPriUlt",
-					   "Frequency", "Frecuencia", "Recency", "Factor", "RangoFactor", "Ciclo", "Segment"]].rename(
+					   "Frequency", "Frecuencia", "Recency", "Factor", "Ciclo", "Segment"]].rename(
 			columns={
 				'Cliente'   	: 'A.Cliente',
 				'$LISTA'   		: 'B.$LISTA',
@@ -542,14 +545,13 @@ def cluster_function(data):
 				'Frecuencia'	: 'I.Frecuencia',
 				'Recency'		: 'J.Recency',
 				'Factor'		: 'K.FactorCiclo',
-				'RangoFactor'	: 'L.RangoFactor',
-				'Ciclo'			: 'M.CicloDeVida',
-				'Segment'		: 'N.Segmento',
+				'Ciclo'			: 'L.CicloDeVida',
+				'Segment'		: 'M.Segmento',
 			}
 		)
 
 		df = df_plot16.to_json()
-		df2 = df_base11.to_json()
+		df2 = df_base11.to_json(orient="records")
 		df3 = []
 		df3.append(df)
 		df3.append(df2)
