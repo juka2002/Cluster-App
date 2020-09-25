@@ -27,7 +27,7 @@ SECRET_KEY = 'o^t862$f8av^+rni#ohy4j^!zbiyu5021x1#03b^imx^k^8iwx'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['https://cluster-app-wedo.herokuapp.com/',]
 
 
 # Application definition
