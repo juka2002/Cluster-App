@@ -61,6 +61,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',
+    'https://cluster-app-wedo.herokuapp.com',
 ]
 
 ROOT_URLCONF = 'ClusterApp.urls'
