@@ -3,6 +3,7 @@ from . import views
 from .views import DataViewSet, DataAnalysisSet
 # data_list, data_detail, DataAPIView, DataDetails, GenericAPIView
 from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 router = DefaultRouter()
 router.register('api', DataViewSet)
@@ -24,4 +25,5 @@ urlpatterns = [
 	#api con DataView mas sencillo
 	path('', include(router.urls)),
 	path('cluster/', views.cluster_function),
+	path('api-token/', TokenObtainPairView.as_view()),
 ]

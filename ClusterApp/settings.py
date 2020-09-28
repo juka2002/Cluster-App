@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'api',
     'corsheaders',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
@@ -142,4 +143,10 @@ os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 #esto es heroku
 django_heroku.settings(locals())
 
+#jwt
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
 
