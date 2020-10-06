@@ -1,12 +1,13 @@
 from django.http import JsonResponse
-from api.serializers import DataSerializer, DataAnalysisSerializer
+from api.serializers import DataSerializer, DataAnalysisSerializer, UserSerializer
 from MiApp.models import Data, DataAnalysis
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.contrib.auth.models import User
 
 import pandas as pd
 from sklearn.cluster import KMeans
@@ -27,6 +28,11 @@ class DataAnalysisSet(viewsets.ModelViewSet):
 	queryset = DataAnalysis.objects.all()
 	# authentication_classes = [SessionAuthentication, BasicAuthentication]
 	# permission_classes = (IsAuthenticated)
+
+class UserViewSet(viewsets.ModelViewSet):
+	queryset = User.objects.all()
+	serializer_class = UserSerializer
+	permission_classes = (AllowAny, )
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

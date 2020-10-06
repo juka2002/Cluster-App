@@ -1,13 +1,14 @@
 from django.urls import path, include
 from . import views
-from .views import DataViewSet, DataAnalysisSet
+from .views import DataViewSet, DataAnalysisSet, UserViewSet
 # data_list, data_detail, DataAPIView, DataDetails, GenericAPIView
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import (TokenObtainPairView, TokenRefreshView)
 
 router = DefaultRouter()
 router.register('api', DataViewSet)
 router.register('api-seg', DataAnalysisSet)
+router.register('users',UserViewSet)
 
 urlpatterns = [
 	#api con funciones
@@ -26,4 +27,5 @@ urlpatterns = [
 	path('', include(router.urls)),
 	path('cluster/', views.cluster_function),
 	path('api-token/', TokenObtainPairView.as_view()),
+	path('api-token-refresh/', TokenRefreshView.as_view()),
 ]

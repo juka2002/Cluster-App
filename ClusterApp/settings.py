@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 import django_heroku
+from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     'import_export',
     'django_extensions',
     'rest_framework',
+    'rest_framework.authtoken',
     'api',
     'corsheaders',
     'rest_framework_simplejwt.token_blacklist',
@@ -63,6 +65,16 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',
     'https://cluster-app-wedo.herokuapp.com',
+]
+
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
+    'https://cluster-app-wedo.herokuapp.com',
+)
+
+CORS_ALLOWED_HEADERS = list(default_headers) + [
+    'contenttype',
 ]
 
 ROOT_URLCONF = 'ClusterApp.urls'
@@ -147,6 +159,6 @@ django_heroku.settings(locals())
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
 }
 
