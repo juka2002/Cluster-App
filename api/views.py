@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from api.serializers import DataSerializer, DataAnalysisSerializer, UserSerializer
 from MiApp.models import Data, DataAnalysis
 
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes,authentication_classes
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
@@ -35,7 +35,7 @@ class UserViewSet(viewsets.ModelViewSet):
 	permission_classes = (AllowAny, )
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@authentication_classes([IsAuthenticated])
 def cluster_function(data):
 	try:
 		#base = request.data
