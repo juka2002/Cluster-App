@@ -35,7 +35,6 @@ class UserViewSet(viewsets.ModelViewSet):
 	permission_classes = (AllowAny, )
 
 @api_view(['POST'])
-@authentication_classes([IsAuthenticated])
 def cluster_function(data):
 	try:
 		#base = request.data
