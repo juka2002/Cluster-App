@@ -44,6 +44,8 @@ def cluster_function(data):
 		df["PrecioLista"] = df["PrecioLista"].astype(float)
 		df["PrecioFacturado"] = df["PrecioFacturado"].astype(float)
 		df['FechaApertura'] = pd.TimedeltaIndex(df['FechaApertura'], unit='d') + dt.datetime(1900,1,1)
+		df["Identificador"] = df["Identificador"].astype("str")
+		df["OC"] = df["OC"].astype("str")
 
 		for datos in df.itertuples():
 			datos = Data.objects.create(
