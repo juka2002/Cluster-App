@@ -14,6 +14,8 @@ df = pd.DataFrame(base)
 df["PrecioLista"] = df["PrecioLista"].astype(float)
 df["PrecioFacturado"] = df["PrecioFacturado"].astype(float)
 df['FechaApertura'] = pd.to_datetime(df['FechaApertura'])
+df["Identificador"] = df["Identificador"].astype("str")
+df["OC"] = df["OC"].astype("str")
 
 #completa la data
 df["OT FINAL"] = df["Identificador"].astype("str") + df["OC"].astype("str") \
